@@ -51,7 +51,7 @@ void loop() {
  //     int httpResponseCode = http.POST(httpRequestData);
       
       // If you need an HTTP request with a content type: application/json, use the following:
-      http.addHeader("Content-Type", "application/json");
+      http.addHeader("Content-Type", "application/json\r\n");
       int httpResponseCode = http.POST("{\"icalor\":\"77\",\"iruido\":\"66\",\"igas\":\"55\",\"fecha\":\"\"}");
 
       // If you need an HTTP request with a content type: text/plain
