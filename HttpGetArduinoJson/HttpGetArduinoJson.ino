@@ -1,5 +1,6 @@
 /******************************************************************************************************************************
 lectura de datos metodo GET desde API en heroku
+metodo Get con descerialización con la libreria ArduinoJson
  *******************************************************************************************************************************/
 
 #include <WiFi.h>
@@ -10,24 +11,19 @@ lectura de datos metodo GET desde API en heroku
 const char* ssid = "Tenda_3DE948";
 const char* password = "18264838";
 
+//const char* ssid = "Edificio C2";
+//const char* password = "";
+
+
 
 //configuración JSON
 StaticJsonDocument<1536> doc;
 
-
-//char json[] = "{\"icalor\":\"77\",\"iruido\":\"66\",\"igas\":\"55\",\"fecha\":\"\"}";
-char json[] = "{\"icalor\":\"77\",\"iruido\":\"66\",\"igas\":\"55\",\"fecha\":\"\"}";
-
-
-//const char* world = doc["hello"];
-
-
-
 // Url's para hacer las peticiones
-const char* example = "https://www.google.com";
+const char* url = "https://dry-fjord-94565.herokuapp.com/ver";
 
-String answer;
-const int requestInterval = 7000;  // intervalo de respuesta 7s
+String input;
+const int requestInterval = 100000;  // intervalo de respuesta 7s
 
 float sensorReadingsArr[4];
 
@@ -50,30 +46,38 @@ void setup(){
 
 void loop(){
     if(WiFi.status()== WL_CONNECTED ){ 
-      answer = getRequest(example);
-      Serial.println("\nRespuesta de heroku");
+      input = getRequest(url);
+      DeserializationError error = deserializeJson(doc, input);
       
-      Serial.println(answer);
-     // const String* input=answer;
+      if (error) {
+        Serial.print("deserializeJson() falló: ");
+        Serial.println(error.c_str());
+        return;
+      }
       
-     /* deserializeJson(doc, answer);
+      deserializeJson(doc, input);
 
-      const char* valor=doc["icalor"];
-      Serial.print("El valor es: ");
-      Serial.print(valor);*/
-      //delay(requestInterval); 
-
-
-    for (JsonObject item : doc.as<JsonArray>()) {
-
-    long fecha_seconds = item["fecha"]["seconds"]; // 1651413600, 1651450390, 1651450791, 1651450804, ...
-    long fecha_nanoseconds = item["fecha"]["nanoseconds"]; // 0, 640000000, 874000000, 804000000, 670000000, ...
-  
-    int icalor = item["icalor"]; // 12, 10, 10, 11, 11, 22, 10, 10, 0, 22, 22, 5
-    int igas = item["igas"]; // 800, 800, 800, 11, 11, 22, 800, 800, 0, 22, 22, 25
-    int iruido = item["iruido"]; // 11, 33, 33, 11, 11, 22, 33, 33, 0, 22, 22, 2
-
+     /* const char* valor=doc["icalor"];
+      Serial.print("El valor es: ");*/
+      Serial.print(doc.as<JsonArray>());
+      for (JsonObject item : doc.as<JsonArray>()) {
+  //obtiene los campos del Input Json
+  long fecha_seconds = item["fecha"]["seconds"]; 
+  long fecha_nanoseconds = item["fecha"]["nanoseconds"]; 
+  int icalor = item["icalor"]; 
+  int igas = item["igas"]; 
+  int iruido = item["iruido"]; 
+  //los imprime de forma secuencial
+  Serial.println("***************************");
+  Serial.print("Calor: ");
+  Serial.print(icalor);  
+  Serial.print(" Gas: ");
+  Serial.print(igas);
+  Serial.print(" Ruido: ");
+  Serial.println(iruido);
+  Serial.println("***************************");
 }
+      delay(requestInterval);     
     }
 
 
